@@ -1,0 +1,41 @@
+name: Deploy to GitHub Pages
+
+# Run this workflow only when index.html changes on a push to main
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'      # only trigger when index.html is changed
+
+# Permissions the workflow needs to publish to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      # 1. Get the repository code onto the runner
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Prepare GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 3. Upload the site files (the whole repo folder) as a Pages artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'         # upload everything in the repo root
+
+      # 4. Deploy the uploaded artifact to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
